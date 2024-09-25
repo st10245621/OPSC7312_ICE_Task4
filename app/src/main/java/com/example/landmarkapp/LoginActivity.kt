@@ -2,6 +2,7 @@ package com.example.landmarkapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -35,8 +36,10 @@ class LoginActivity : AppCompatActivity() {
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-                        val intent = Intent(this, MapsActivity::class.java)
+                        // Navigate to next screen (MapActivity or MainActivity)
+                        val intent = Intent(this, MainActivity::class.java)
                         startActivity(intent)
+                        finish()
                     } else {
                         Toast.makeText(this, "Login Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }
@@ -44,8 +47,8 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // Go to Register Screen
-    fun goToRegister() {
+    // Go to Register Screen when "Don't have an account?" is clicked
+    fun goToRegister(view: View) {
         val intent = Intent(this, RegisterActivity::class.java)
         startActivity(intent)
     }

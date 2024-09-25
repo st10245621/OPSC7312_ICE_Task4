@@ -39,5 +39,5 @@
         android:text="Don't have an account? Register"
         android:gravity="center_horizontal"
         android:textSize="16sp"
-        android:onClick="goToRegister" /> <!-- Click to switch to register -->
+        android:onClick="goToRegister" />
 </LinearLayout>

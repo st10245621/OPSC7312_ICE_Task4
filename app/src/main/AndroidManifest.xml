@@ -27,17 +27,10 @@
         <activity android:name=".RegisterActivity"
             android:exported="false" />
 
-        <!-- Existing MainActivity definition -->
+        <!-- MainActivity declaration -->
         <activity
             android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.LandmarkApp">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="true" />
 
     </application>
 
