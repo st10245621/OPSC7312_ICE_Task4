@@ -64,6 +64,7 @@ dependencies {
     // OSMDroid for OpenStreetMap integration
     implementation("org.osmdroid:osmdroid-android:6.1.10")
     implementation ("org.osmdroid:osmdroid-wms:6.1.10")
+    implementation ("org.osmdroid:osmdroid-geopackage:6.1.10")
 
     // AndroidX dependencies
     implementation(libs.androidx.core.ktx)
