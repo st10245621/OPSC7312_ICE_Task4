@@ -23,6 +23,10 @@ class MapActivity : AppCompatActivity() {
     private lateinit var myLocationOverlay: MyLocationNewOverlay
     private lateinit var currentLocation: GeoPoint
 
+    // Variables to store the last added marker and route
+    private var lastMarker: Marker? = null
+    private var lastRoute: Polyline? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
@@ -81,30 +85,51 @@ class MapActivity : AppCompatActivity() {
 
     // Add a marker to the selected landmark location
     private fun addMarker(location: GeoPoint) {
+        // Remove the previous marker if it exists
+        lastMarker?.let {
+            mapView.overlays.remove(it)
+        }
+
         val marker = Marker(mapView)
         marker.position = location
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
         marker.title = "Selected Landmark"
         mapView.overlays.add(marker)
         mapView.invalidate() // Refresh the map to display the marker
+
+        lastMarker = marker // Save reference to the last marker
     }
 
-    // Calculate the route from the user's location to the selected landmark
+    // Calculate the route from the user's location to the selected landmark and display the estimated time and distance
     private fun calculateRouteToLandmark(landmark: GeoPoint) {
-        // For this demonstration, we'll use a straight line as the "route"
-        // Later, this can be replaced with a real routing algorithm using a web service
-        if (myLocationOverlay.myLocation != null) {
+        // Check if the user's current location is available
+        val currentLocation = myLocationOverlay.myLocation
+
+        if (currentLocation != null) {
+            // Remove previous route if exists
+            lastRoute?.let { mapView.overlays.remove(it) }
+
+            // Create the route as a straight line between the user's location and the selected landmark
             val route = Polyline()
-            route.addPoint(myLocationOverlay.myLocation)
+            route.addPoint(currentLocation)
             route.addPoint(landmark)
             mapView.overlays.add(route)
             mapView.invalidate() // Refresh the map to display the route
 
-            // Display a simple distance estimate (in km)
-            val distance = myLocationOverlay.myLocation.distanceToAsDouble(landmark) / 1000
-            Toast.makeText(this, "Distance to destination: $distance km", Toast.LENGTH_SHORT).show()
+            lastRoute = route // Save reference to the last route
+
+            // Calculate the distance to the landmark (in kilometers)
+            val distance = currentLocation.distanceToAsDouble(landmark) / 1000
+
+            // Calculate the estimated time (assuming an average walking speed of 5 km/h)
+            val averageWalkingSpeedKmH = 5.0
+            val estimatedTimeHours = distance / averageWalkingSpeedKmH
+            val estimatedTimeMinutes = (estimatedTimeHours * 60).toInt()
+
+            // Display the distance and estimated time in a Toast message
+            Toast.makeText(this, "Distance: %.2f km, Estimated Time: %d min".format(distance, estimatedTimeMinutes), Toast.LENGTH_LONG).show()
         } else {
-            Toast.makeText(this, "Current location not available", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Current location not available. Please wait for location to be fetched.", Toast.LENGTH_SHORT).show()
         }
     }
 
