@@ -36,8 +36,9 @@ class LoginActivity : AppCompatActivity() {
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-                        // Navigate to next screen (MapActivity or MainActivity)
-                        val intent = Intent(this, MainActivity::class.java)
+
+                        // Navigate to MapActivity on successful login
+                        val intent = Intent(this, MapActivity::class.java)
                         startActivity(intent)
                         finish()
                     } else {

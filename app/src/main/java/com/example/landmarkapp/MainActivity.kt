@@ -17,11 +17,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Get user email passed from LoginActivity
+        val userEmail = intent.getStringExtra("user_email")
+
         setContent {
             LandmarkAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    // Eventually replace Greeting with a Map Composable
                     Greeting(
-                        name = "Android",
+                        name = userEmail ?: "User",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -33,7 +38,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
-        text = "Hello $name!",
+        text = "Hello $name! Welcome to the Landmark App!",
         modifier = modifier
     )
 }
