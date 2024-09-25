@@ -3,6 +3,7 @@ package com.example.landmarkapp
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -10,9 +11,10 @@ import androidx.core.content.ContextCompat
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.ScaleBarOverlay
 
 class MapActivity : AppCompatActivity() {
@@ -50,17 +52,22 @@ class MapActivity : AppCompatActivity() {
         compassOverlay.enableCompass()
         mapView.overlays.add(compassOverlay)
 
-        // Add a scale bar overlay (make sure it's properly imported)
+        // Add a scale bar overlay
         val scaleBarOverlay = ScaleBarOverlay(mapView)
         scaleBarOverlay.setCentred(true)  // Centered scale bar
         scaleBarOverlay.setScaleBarOffset(100, 10)  // Adjust the offset
         mapView.overlays.add(scaleBarOverlay)
 
-        // Add logic to handle map clicks for selecting landmarks
-        mapView.setOnLongClickListener {
-            val selectedLocation = mapView.projection.fromPixels(it.x.toInt(), it.y.toInt()) as GeoPoint
-            calculateRouteToLandmark(selectedLocation)
-            true
+        // Handle tap gestures for selecting landmarks
+        mapView.setOnTouchListener { _, motionEvent ->
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                val selectedLocation = mapView.projection.fromPixels(motionEvent.x.toInt(), motionEvent.y.toInt()) as GeoPoint
+                addMarker(selectedLocation)
+                calculateRouteToLandmark(selectedLocation)
+                true
+            } else {
+                false
+            }
         }
     }
 
@@ -72,21 +79,33 @@ class MapActivity : AppCompatActivity() {
         mapView.overlays.add(myLocationOverlay)
     }
 
+    // Add a marker to the selected landmark location
+    private fun addMarker(location: GeoPoint) {
+        val marker = Marker(mapView)
+        marker.position = location
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        marker.title = "Selected Landmark"
+        mapView.overlays.add(marker)
+        mapView.invalidate() // Refresh the map to display the marker
+    }
+
     // Calculate the route from the user's location to the selected landmark
     private fun calculateRouteToLandmark(landmark: GeoPoint) {
         // For this demonstration, we'll use a straight line as the "route"
         // Later, this can be replaced with a real routing algorithm using a web service
-        val route = Polyline()
-        route.addPoint(myLocationOverlay.myLocation)
-        route.addPoint(landmark)
-        mapView.overlays.add(route)
+        if (myLocationOverlay.myLocation != null) {
+            val route = Polyline()
+            route.addPoint(myLocationOverlay.myLocation)
+            route.addPoint(landmark)
+            mapView.overlays.add(route)
+            mapView.invalidate() // Refresh the map to display the route
 
-        // For now, display a simple distance estimate (in km)
-        val distance = myLocationOverlay.myLocation.distanceToAsDouble(landmark) / 1000
-        // Update this section later to also show time estimates
-
-        // You can show this information to the user with a Toast or a UI update
-        Toast.makeText(this, "Distance to destination: $distance km", Toast.LENGTH_SHORT).show()
+            // Display a simple distance estimate (in km)
+            val distance = myLocationOverlay.myLocation.distanceToAsDouble(landmark) / 1000
+            Toast.makeText(this, "Distance to destination: $distance km", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Current location not available", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onResume() {
